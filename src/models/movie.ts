@@ -35,25 +35,26 @@ const Movie = model<IMovie>('Movies', movieSchema);
 //Joi validation
 const movieValidationSchema = Joi.object({
   title: Joi.string().min(5).max(255).required(),
-  genreId: Joi.objectId().required(),
+  genreId: Joi.string().required(),
   numberInStock: Joi.number().min(0).required(),
   dailyRentalRate: Joi.number().min(0).required()
 });
 
 function validateMovie(movie: IMovie) {
   //Joi validation
-   const { error } = movieValidationSchema.validate(movie);
+  const { error } = movieValidationSchema.validate(movie);
   if (error) return { error: error.details[0].message };
 
-  //check if movieId is valid
+  //check if the movieId is valid
   if (!movie._id || !Types.ObjectId.isValid(movie._id)) 
     return { error: 'Invalid movie ID.' };
 
   //additional validation
-  if (!movie) return { error: 'Movie is required.' };
+  if (!movie.title) return { error: 'Title is required.' };
+  if (!movie.genre) return { error: 'Genre is required.' };
   
   return { error: null };
-};
+}
 
 exports.Movie = Movie;
 exports.validate = validateMovie;

@@ -24,7 +24,7 @@ function validateGenre(genre: IGenre) {
   const { error } = genreValidationSchema.validate(genre);
   if (error) return { error: error.details[0].message };
 
-  //check if the genre is valid
+  //check if the genreId is valid
   if (!genre._id || !Types.ObjectId.isValid(genre._id)) 
     return { error: 'Invalid genre ID.' };
 
