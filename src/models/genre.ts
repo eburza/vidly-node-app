@@ -1,8 +1,10 @@
 const Joi = require('joi');
 const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
+import { IGenre } from '../interfaces';
 
 //mongoose schema
-const genreSchema = new mongoose.Schema({
+const genreSchema = new Schema<IGenre>({
   name: {
     type: String,
     required: true,
@@ -11,10 +13,10 @@ const genreSchema = new mongoose.Schema({
   }
 })
 
-const Genre = mongoose.model('Genre', genreSchema);
+const Genre = model<IGenre>('Genre', genreSchema);
 
 //Joi schema for validation
-function validateGenre(genre) {
+function validateGenre(genre: IGenre) {
   const schema = {
     name: Joi.string().min(5).max(50).required()
   };

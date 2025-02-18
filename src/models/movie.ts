@@ -1,9 +1,11 @@
 const Joi = require('joi');
 const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
+import { IMovie } from '../interfaces';
 const { genreSchema } = require('./genre')
 
 //mongoose schema
-const movieSchema = new mongoose.Schema({
+const movieSchema = new Schema<IMovie>({
   title: {
     type: String,
     required: true,
@@ -29,10 +31,10 @@ const movieSchema = new mongoose.Schema({
   }
 })
 
-const Movie = mongoose.model('Movies', movieSchema);
+const Movie = model<IMovie>('Movies', movieSchema);
 
 //Joi schema for validation
-function validateMovie(movie) {
+function validateMovie(movie: IMovie) {
   const schema = {
     title: Joi.string().min(5).max(255).required(),
     genreId: Joi.objectId().required(),

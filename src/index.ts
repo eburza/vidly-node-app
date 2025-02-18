@@ -4,14 +4,10 @@ const customers = require('./routes/customers');
 const express = require('express');
 const app = express();
 require('dotenv').config({ path: '.env.local' });
-console.log('Environment variables:', {
-  MONGODB_URI: process.env.MONGODB_URI,
-  NODE_ENV: process.env.NODE_ENV
-});
 
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('Connected to MongoDB'))
-.catch((err) => {
+.catch((err: Error) => {
   console.error('MongoDB connection error:', err);
   console.log('MONGODB_URI:', process.env.MONGODB_URI);
 });
