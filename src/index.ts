@@ -19,5 +19,6 @@ app.use('/api/genres', genres);
 app.use('/api/customers', customers);
 app.use('/api/rentals', rentals);
 app.use('/api/users', users);
+
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
