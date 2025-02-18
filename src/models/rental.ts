@@ -64,7 +64,7 @@ const Rental = model<IRental>('Rental', rentalSchema);
 const rentalValidationSchema = Joi.object({
   customerId: Joi.string().required(),
   movieId: Joi.string().required(),
-  dateOut: Joi.date().default(Date.now),
+  dateOut: Joi.date().default(Date.now, 'current date'),
   dateReturned: Joi.date(),
   rentalFee: Joi.number().min(0)
 });

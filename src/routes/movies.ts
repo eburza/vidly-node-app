@@ -19,7 +19,7 @@ router.post('/', async (req: Request, res: Response) => {
   if (!genre) return res.status(400).send('Invalid genre.');
 
   //create a new movie
-  let movie = new Movie({ 
+  const movie = new Movie({ 
     title: req.body.title,
     //genre with _id and name, not the whole genre object
     genre: {
@@ -29,7 +29,7 @@ router.post('/', async (req: Request, res: Response) => {
     numberInStock: req.body.numberInStock,
     dailyRentalRate: req.body.dailyRentalRate
   });
-  movie = await movie.save();
+  await movie.save();
   
   res.send(movie);
 });
