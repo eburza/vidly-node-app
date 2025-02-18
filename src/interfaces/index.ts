@@ -26,3 +26,15 @@ export interface IRental {
   dateReturned?: Date;
   rentalFee?: number;
 }
+
+export interface IUser {
+  _id?: string;
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface IAuth {
+  email: string;
+  password: string;
+}
