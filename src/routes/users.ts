@@ -1,3 +1,5 @@
+const lodash = require('lodash');
+const { passwordStrength } = require('check-password-strength')
 const express = require('express');
 const router = express.Router();
 const { User, validate } = require('../models/user');
@@ -13,22 +15,24 @@ router.post('/', async (req: Request, res: Response) => {
   const { error } = validate(req.body); 
   if (error) return res.status(400).send(error);
 
+  //Check if the password is strong
+  const passwordCheck = passwordStrength(req.body.password);
+
+  if (passwordCheck < 2) { // 0 = Too weak, 1 = Weak, 2 = Medium, 3 = Strong
+    return res.status(400).send({
+      error: 'Password is too weak. Password must contain uppercase, lowercase, numbers and special characters.'
+    });
+  }
+
   //check if the user already exists
   let user = await User.findOne({ email: req.body.email });
   if (user) return res.status(400).send('User already registered.');
 
-  user = new User({
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password
-  });
+  user = new User(lodash.pick(req.body, ['name', 'email', 'password']));
 
   await user.save();
-  
-  res.send({
-    name: user.name,
-    email: user.email,
-  });
+
+  res.send(lodash.pick(user, ['_id', 'name', 'email']));
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
@@ -41,10 +45,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
   if (!user) return res.status(404).send('The User with the given ID was not found.');
   
-  res.send({
-    name: user.name,
-    email: user.email,
-  });
+res.send(lodash.pick(user, ['_id', 'name', 'email']));
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
@@ -55,10 +56,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
   if (!user) return res.status(404).send('The User with the given ID was not found.');
 
-  res.send({
-    name: user.name,
-    email: user.email,
-  });
+  res.send(lodash.pick(user, ['_id', 'name', 'email']));
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
@@ -66,10 +64,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
   if (!user) return res.status(404).send('The User with the given ID was not found.');
 
-  res.send({
-    name: user.name,
-    email: user.email,
-  });
+  res.send(lodash.pick(user, ['_id', 'name', 'email']));
 });
 
 module.exports = router;
