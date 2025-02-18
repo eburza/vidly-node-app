@@ -17,3 +17,12 @@ export interface IMovie {
   numberInStock: number;
   dailyRentalRate: number;
 }
+
+export interface IRental {
+  _id?: string;
+  customer: ICustomer;
+  movie: IMovie;
+  dateOut: Date;
+  dateReturned?: Date;
+  rentalFee?: number;
+}
