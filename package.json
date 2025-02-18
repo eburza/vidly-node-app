@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "check-password-strength": "^3.0.0",
     "dotenv": "^16.4.7",
     "express": "^4.16.2",
