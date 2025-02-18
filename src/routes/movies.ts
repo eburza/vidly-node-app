@@ -1,6 +1,5 @@
 const { Movie, validate } = require('../models/movie');
 const { Genre } = require('../models/genre');
-//const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 
@@ -13,7 +12,7 @@ router.get('/', async (req: Request, res: Response) => {
 
 router.post('/', async (req: Request, res: Response) => {
   const { error } = validate(req.body); 
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).send(error);
 
   //check if the genre exists in the database, it also has version property
   const genre = await Genre.findById(req.body.genreId);
@@ -37,7 +36,7 @@ router.post('/', async (req: Request, res: Response) => {
 
 router.put('/:id', async (req: Request, res: Response) => {
   const { error } = validate(req.body); 
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).send(error);
 
   const movie = await Movie.findByIdAndUpdate(req.params.id, { name: req.body.name }, {
     new: true
@@ -49,6 +48,9 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
+  const { error } = validate(req.body); 
+  if (error) return res.status(400).send(error);
+  
   const movie = await Movie.findByIdAndRemove(req.params.id);
 
   if (!movie) return res.status(404).send('The Movie with the given ID was not found.');

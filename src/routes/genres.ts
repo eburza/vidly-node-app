@@ -1,4 +1,3 @@
-//const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 const { Genre, validate } = require('../models/genre');
@@ -12,7 +11,7 @@ router.get('/', async (req: Request, res: Response) => {
 
 router.post('/', async (req: Request, res: Response) => {
   const { error } = validate(req.body); 
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).send(error);
 
   let genre = new Genre({ name: req.body.name });
   genre = await genre.save();
@@ -22,7 +21,7 @@ router.post('/', async (req: Request, res: Response) => {
 
 router.put('/:id', async (req: Request, res: Response) => {
   const { error } = validate(req.body); 
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).send(error);
 
   const genre = await Genre.findByIdAndUpdate(req.params.id, { name: req.body.name }, {
     new: true
@@ -34,6 +33,9 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
+  const { error } = validate(req.body); 
+  if (error) return res.status(400).send(error);
+  
   const genre = await Genre.findByIdAndRemove(req.params.id);
 
   if (!genre) return res.status(404).send('The genre with the given ID was not found.');

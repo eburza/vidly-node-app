@@ -5,7 +5,6 @@ const { Customer } = require('../models/customer');
 const express = require('express');
 const router = express.Router();
 
-import { Types } from 'mongoose';
 import type { Request, Response } from 'express';
 
 //get all rentals
@@ -16,16 +15,13 @@ router.get('/', async (req: Request, res: Response) => {
 
 //create a new rental
 router.post('/', async (req: Request, res: Response) => {
+  // Joi validation
   const { error } = validate(req.body); 
-  if (error) return res.status(400).send(error.details[0].message);
-
-  //check if the customerId and movieId are valid
-  if (!Types.ObjectId.isValid(req.body.customerId)) return res.status(400).send('Invalid customer.');
-  if (!Types.ObjectId.isValid(req.body.movieId)) return res.status(400).send('Invalid movie.');
+  if (error) return res.status(400).send(error);
 
   //check if the customer exists in the database
   const customer = await Customer.findById(req.body.customerId);
-  if (!customer) return res.status(400).send('Invalid genre.');
+  if (!customer) return res.status(400).send('Invalid customer.');
 
   //check if the movie exists in the database
   const movie = await Movie.findById(req.body.movieId);
