@@ -7,11 +7,13 @@ const router = express.Router();
 
 import type { Request, Response } from 'express';
 
+//get all rentals
 router.get('/', async (req: Request, res: Response) => {
   const rentals = await Rental.find().sort('-dateOut');
   res.send(rentals);
 });
 
+//create a new rental
 router.post('/', async (req: Request, res: Response) => {
   const { error } = validate(req.body); 
   if (error) return res.status(400).send(error.details[0].message);
@@ -26,54 +28,45 @@ router.post('/', async (req: Request, res: Response) => {
 
   if (movie.numberInStock === 0) return res.status(400).send('Movie not in stock.');
 
-  //create a new rental object
-  let rental = new Rental({ 
-    customer: {
-      _id: customer._id,
-      name: customer.name,
-      phone: customer.phone,
-    },
-    movie: {
-      _id: movie._id,
-      title: movie.title,
-      dailyRentalRate: movie.dailyRentalRate
-    }
-  });
-  rental = await rental.save();
+  //create session
+  const session = await Rental.startSession();
+  if (!session) return res.status(400).send('Failed to create session.');
+  session.startTransaction();
 
-  movie.numberInStock--;
-  await movie.save();
-  
-  res.send(rental);
-});
+  //try to create a new rental object
+  try {
+    //create a new rental object
+    const rental = new Rental({ 
+      customer: {
+        _id: customer._id,
+        name: customer.name,
+        phone: customer.phone,
+      },
+      movie: {
+        _id: movie._id,
+        title: movie.title,
+        dailyRentalRate: movie.dailyRentalRate
+      }
+    });
 
-router.put('/:id', async (req: Request, res: Response) => {
-  const { error } = validate(req.body); 
-  if (error) return res.status(400).send(error.details[0].message);
+    //save the rental
+    await rental.save({ session });
 
-  const rental = await Rental.findByIdAndUpdate(req.params.id, { name: req.body.name }, {
-    new: true
-  });
-
-  if (!rental) return res.status(404).send('The Rental with the given ID was not found.');
-  
-  res.send(rental);
-});
-
-router.delete('/:id', async (req: Request, res: Response) => {
-  const rental = await Rental.findByIdAndRemove(req.params.id);
-
-  if (!rental) return res.status(404).send('The Rental with the given ID was not found.');
-
-  res.send(rental);
-});
-
-router.get('/:id', async (req: Request, res: Response) => {
-  const rental = await Rental.findById(req.params.id);
-
-  if (!rental) return res.status(404).send('The Rental with the given ID was not found.');
-
-  res.send(rental);
+    //update the movie
+    movie.numberInStock--;
+    await movie.save({ session });
+    
+    //commit the transaction
+    await session.commitTransaction();
+    res.status(201).send(rental);
+  }
+  //catch any errors
+  catch (error) {
+    //rollback the transaction if an error occurs
+    await session.abortTransaction();
+    session.endSession();
+    res.status(500).send('Internal server error');
+  }
 });
 
 module.exports = router;
