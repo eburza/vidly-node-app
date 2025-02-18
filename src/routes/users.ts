@@ -22,10 +22,13 @@ router.post('/', async (req: Request, res: Response) => {
     email: req.body.email,
     password: req.body.password
   });
-  
+
   await user.save();
   
-  res.send(user);
+  res.send({
+    name: user.name,
+    email: user.email,
+  });
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
@@ -38,7 +41,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 
   if (!user) return res.status(404).send('The User with the given ID was not found.');
   
-  res.send(user);
+  res.send({
+    name: user.name,
+    email: user.email,
+  });
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
@@ -49,7 +55,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
   if (!user) return res.status(404).send('The User with the given ID was not found.');
 
-  res.send(user);
+  res.send({
+    name: user.name,
+    email: user.email,
+  });
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
@@ -57,7 +66,10 @@ router.get('/:id', async (req: Request, res: Response) => {
 
   if (!user) return res.status(404).send('The User with the given ID was not found.');
 
-  res.send(user);
+  res.send({
+    name: user.name,
+    email: user.email,
+  });
 });
 
 module.exports = router;
