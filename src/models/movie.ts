@@ -35,13 +35,19 @@ const Movie = model<IMovie>('Movies', movieSchema);
 
 //Joi schema for validation
 function validateMovie(movie: IMovie) {
-  const schema = {
+  const schema = Joi.object({
     title: Joi.string().min(5).max(255).required(),
     genreId: Joi.objectId().required(),
     numberInStock: Joi.number().min(0).required(),
     dailyRentalRate: Joi.number().min(0).required()
+  });
+  const result = schema.validate(movie);
+  if (result.error) {
+    result.status(400).send('Validation failed: ' +result.error.details[0].message);
+    // throw new Error(result.error.details[0].message);
+    return;
   }
-  return Joi.validate(movie, schema);
+  return result;
 }
 
 exports.Movie = Movie;

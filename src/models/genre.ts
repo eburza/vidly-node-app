@@ -17,11 +17,15 @@ const Genre = model<IGenre>('Genre', genreSchema);
 
 //Joi schema for validation
 function validateGenre(genre: IGenre) {
-  const schema = {
+  const schema = Joi.object({
     name: Joi.string().min(5).max(50).required()
-  };
-
-  return Joi.validate(genre, schema);
+  });
+  const result = schema.validate(genre);
+  if (result.error) {
+    result.status(400).send('Validation failed: ' +result.error.details[0].message);
+    return;
+  }
+  return result;
 }
 
 exports.genreSchema = genreSchema; 

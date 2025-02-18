@@ -23,13 +23,17 @@ const Customer = model<ICustomer>('Customer', new Schema<ICustomer>({
 }));
 
 function validateCustomer(customer: ICustomer) {
-  const schema = {
+  const schema = Joi.object({
     name: Joi.string().min(5).max(50).required(),
     phone: Joi.string().min(5).max(50).required(),
     isGold: Joi.boolean()
-  };
-
-  return Joi.validate(customer, schema);
+  });
+  const result = schema.validate(customer);
+  if (result.error) {
+    result.status(400).send('Validation failed: ' +result.error.details[0].message);
+    return;
+  }
+  return result;
 }
 
 exports.Customer = Customer; 

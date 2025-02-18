@@ -1,10 +1,11 @@
 const { Rental, validate } = require('../models/rental');
 const { Movie } = require('../models/movie');
 const { Customer } = require('../models/customer');
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 
+import { Types } from 'mongoose';
 import type { Request, Response } from 'express';
 
 //get all rentals
@@ -17,6 +18,10 @@ router.get('/', async (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   const { error } = validate(req.body); 
   if (error) return res.status(400).send(error.details[0].message);
+
+  //check if the customerId and movieId are valid
+  if (!Types.ObjectId.isValid(req.body.customerId)) return res.status(400).send('Invalid customer.');
+  if (!Types.ObjectId.isValid(req.body.movieId)) return res.status(400).send('Invalid movie.');
 
   //check if the customer exists in the database
   const customer = await Customer.findById(req.body.customerId);

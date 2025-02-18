@@ -60,11 +60,16 @@ const rentalSchema = new Schema<IRental>({
 });
 
 function validateRental(rental: IRental) {
-  const schema = {
+  const schema = Joi.object(  {
     customerId: Joi.string().required(),
     movieId: Joi.string().required()
-  };
-  return Joi.validate(rental, schema);
+  });
+  const result = schema.validate(rental);
+  if (result.error) {
+    result.status(400).send('Validation failed: ' +result.error.details[0].message);
+    return;
+  }
+  return result;
 }
 
 const Rental = model<IRental>('Rental', rentalSchema);
