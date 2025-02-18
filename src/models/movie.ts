@@ -1,6 +1,5 @@
 const Joi = require('joi');
-const mongoose = require('mongoose');
-import { Schema, model } from 'mongoose';
+import { Schema, Types, model } from 'mongoose';
 import { IMovie } from '../interfaces';
 const { genreSchema } = require('./genre')
 
@@ -33,22 +32,28 @@ const movieSchema = new Schema<IMovie>({
 
 const Movie = model<IMovie>('Movies', movieSchema);
 
-//Joi schema for validation
+//Joi validation
+const movieValidationSchema = Joi.object({
+  title: Joi.string().min(5).max(255).required(),
+  genreId: Joi.objectId().required(),
+  numberInStock: Joi.number().min(0).required(),
+  dailyRentalRate: Joi.number().min(0).required()
+});
+
 function validateMovie(movie: IMovie) {
-  const schema = Joi.object({
-    title: Joi.string().min(5).max(255).required(),
-    genreId: Joi.objectId().required(),
-    numberInStock: Joi.number().min(0).required(),
-    dailyRentalRate: Joi.number().min(0).required()
-  });
-  const result = schema.validate(movie);
-  if (result.error) {
-    result.status(400).send('Validation failed: ' +result.error.details[0].message);
-    // throw new Error(result.error.details[0].message);
-    return;
-  }
-  return result;
-}
+  //Joi validation
+   const { error } = movieValidationSchema.validate(movie);
+  if (error) return { error: error.details[0].message };
+
+  //check if movieId is valid
+  if (!movie._id || !Types.ObjectId.isValid(movie._id)) 
+    return { error: 'Invalid movie ID.' };
+
+  //additional validation
+  if (!movie) return { error: 'Movie is required.' };
+  
+  return { error: null };
+};
 
 exports.Movie = Movie;
 exports.validate = validateMovie;

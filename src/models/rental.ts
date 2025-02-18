@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-import { Schema, model } from 'mongoose';
+import { Schema, model , Types} from 'mongoose';
 import { IRental } from '../interfaces';
 
 const rentalSchema = new Schema<IRental>({
@@ -59,20 +59,33 @@ const rentalSchema = new Schema<IRental>({
   }
 });
 
-function validateRental(rental: IRental) {
-  const schema = Joi.object(  {
-    customerId: Joi.string().required(),
-    movieId: Joi.string().required()
-  });
-  const result = schema.validate(rental);
-  if (result.error) {
-    result.status(400).send('Validation failed: ' +result.error.details[0].message);
-    return;
-  }
-  return result;
-}
-
 const Rental = model<IRental>('Rental', rentalSchema);
+
+const rentalValidationSchema = Joi.object({
+  customerId: Joi.string().required(),
+  movieId: Joi.string().required(),
+  dateOut: Joi.date().default(Date.now),
+  dateReturned: Joi.date(),
+  rentalFee: Joi.number().min(0)
+});
+
+function validateRental(rental: IRental) {
+  //Joi validation
+  const { error } = rentalValidationSchema.validate(rental);
+  if (error) return { error: error.details[0].message };
+
+  //check if the customerId and movieId are valid
+  if (!rental.customer?._id || !Types.ObjectId.isValid(rental.customer._id)) 
+    return { error: 'Invalid customer ID.' };
+  if (!rental.movie?._id || !Types.ObjectId.isValid(rental.movie._id)) 
+    return { error: 'Invalid movie ID.' };
+
+  //additional validation
+  if (!rental.customer) return { error: 'Customer is required.' };
+  if (!rental.movie) return { error: 'Movie is required.' };
+  
+  return { error: null };
+};
 
 exports.Rental = Rental;
 exports.validate = validateRental;

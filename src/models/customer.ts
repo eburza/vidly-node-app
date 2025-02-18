@@ -1,6 +1,5 @@
 const Joi = require('joi');
-const mongoose = require('mongoose');
-import { Schema, model } from 'mongoose';
+import { Schema, model, Types } from 'mongoose';
 import { ICustomer } from '../interfaces';
 
 const Customer = model<ICustomer>('Customer', new Schema<ICustomer>({
@@ -22,19 +21,27 @@ const Customer = model<ICustomer>('Customer', new Schema<ICustomer>({
   }
 }));
 
+const customerValidationSchema = Joi.object({
+  name: Joi.string().min(5).max(50).required(),
+  phone: Joi.string().min(5).max(50).required(),
+  isGold: Joi.boolean()
+});
+
 function validateCustomer(customer: ICustomer) {
-  const schema = Joi.object({
-    name: Joi.string().min(5).max(50).required(),
-    phone: Joi.string().min(5).max(50).required(),
-    isGold: Joi.boolean()
-  });
-  const result = schema.validate(customer);
-  if (result.error) {
-    result.status(400).send('Validation failed: ' +result.error.details[0].message);
-    return;
-  }
-  return result;
-}
+  //Joi validation
+  const { error } = customerValidationSchema.validate(customer);
+  if (error) return { error: error.details[0].message };
+
+  //check if the customerId and movieId are valid
+  if (!customer._id || !Types.ObjectId.isValid(customer._id)) 
+    return { error: 'Invalid customer ID.' };
+
+  //additional validation
+  if (!customer.name) return { error: 'Name is required.' };
+  if (!customer.phone) return { error: 'Phone is required.' };
+  
+  return { error: null };
+};
 
 exports.Customer = Customer; 
 exports.validate = validateCustomer;
