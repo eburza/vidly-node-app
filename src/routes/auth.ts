@@ -1,6 +1,4 @@
 const bcrypt = require('bcrypt'); // password hashing
-const jwt = require('jsonwebtoken'); // json web token
-const config = require('config') // config file
 const Joi = require('joi');
 const express = require('express');
 const router = express.Router();
@@ -26,8 +24,9 @@ router.post('/', async (req: Request, res: Response) => {
   if (!validPassword) return res.status(400).send('Invalid email orpassword.');
 
   //generate json web token
-  const token = jwt.sign({ _id: user._id }, config.get('jwtPrivateKey')); //sign the user id with the private key and return the token
+  const token = user.generateAuthToken();
 
+  //send the token to the client
   res.send(token);
 });
 

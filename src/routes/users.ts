@@ -1,8 +1,6 @@
 const lodash = require('lodash'); // object manipulation
 //const { passwordStrength } = require('check-password-strength') // password strength check
 const bcrypt = require('bcrypt'); // password hashing
-const jwt = require('jsonwebtoken'); // json web token
-const config = require('config') // config file
 const express = require('express');
 const router = express.Router();
 const { User, validate } = require('../models/user');
@@ -41,7 +39,8 @@ router.post('/', async (req: Request, res: Response) => {
   await user.save();
 
   //generate json web token
-  const token = jwt.sign({ _id: user._id }, config.get('jwtPrivateKey')); //sign the user id with the private key and return the token
+  const token = user.generateAuthToken();
+  
   //send the token to the client
   res.header('x-auth-token', token).send(lodash.pick(user, ['_id', 'name', 'email']));
 });

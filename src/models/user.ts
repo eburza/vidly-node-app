@@ -1,4 +1,6 @@
 const Joi = require('joi');
+const jwt = require('jsonwebtoken'); // json web token
+const config = require('config') // config file
 
 import { Schema, Types, model } from 'mongoose';
 import { IUser } from '../interfaces';
@@ -24,6 +26,12 @@ const userSchema = new Schema<IUser>({
     maxlength: 1024,
   }
 })
+
+//add method to the user schema
+userSchema.methods.generateAuthToken = function () {
+  const token = jwt.sign({ _id: this._id }, config.get('jwtPrivateKey')); //sign the user id with the private key and return the token
+  return token;
+}
 
 const User = model<IUser>('User', userSchema);
 
