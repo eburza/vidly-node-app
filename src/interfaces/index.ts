@@ -38,3 +38,13 @@ export interface IAuth {
   email: string;
   password: string;
 }
+
+//declare a global namespace for the request object
+//to extend the Express Request type to include the user property
+declare global {
+  namespace Express {
+    interface Request {
+      user: IUser;
+    }
+  }
+}
