@@ -1,3 +1,4 @@
+const auth = require('../middleware/auth');
 const express = require('express');
 const router = express.Router();
 const { Genre, validate } = require('../models/genre');
@@ -9,7 +10,8 @@ router.get('/', async (req: Request, res: Response) => {
   res.send(genres);
 });
 
-router.post('/', async (req: Request, res: Response) => {
+//add the auth middleware to the post route, so that only authenticated users can access this route
+router.post('/', auth, async (req: Request, res: Response) => {
   const { error } = validate(req.body); 
   if (error) return res.status(400).send(error);
 
@@ -19,7 +21,7 @@ router.post('/', async (req: Request, res: Response) => {
   res.send(genre);
 });
 
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', auth, async (req: Request, res: Response) => {
   const { error } = validate(req.body); 
   if (error) return res.status(400).send(error);
 
@@ -32,7 +34,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   res.send(genre);
 });
 
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', auth, async (req: Request, res: Response) => {
   const { error } = validate(req.body); 
   if (error) return res.status(400).send(error);
   

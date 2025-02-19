@@ -1,7 +1,7 @@
 const { Rental, validate } = require('../models/rental');
 const { Movie } = require('../models/movie');
 const { Customer } = require('../models/customer');
-// const mongoose = require('mongoose');
+const auth = require('../middleware/auth');
 const express = require('express');
 const router = express.Router();
 
@@ -14,7 +14,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 //create a new rental
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', auth, async (req: Request, res: Response) => {
   // Joi validation
   const { error } = validate(req.body); 
   if (error) return res.status(400).send(error);
