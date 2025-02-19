@@ -24,12 +24,17 @@ const userSchema = new Schema<IUser>({
     required: true,
     minlength: 5,
     maxlength: 1024,
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false
   }
 })
 
 //add method to the user schema
 userSchema.methods.generateAuthToken = function () {
-  const token = jwt.sign({ _id: this._id }, config.get('jwtPrivateKey')); //sign the user id with the private key and return the token
+  //generate a json web token
+  const token = jwt.sign({ _id: this._id, isAdmin: this.isAdmin }, config.get('jwtPrivateKey')); //sign the user id with the private key and return the token
   return token;
 }
 

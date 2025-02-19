@@ -11,6 +11,7 @@ router.get('/', async (req: Request, res: Response) => {
   res.send(users);
 })
 
+//login route to generate a token
 router.post('/', async (req: Request, res: Response) => {
   const { error } = validate(req.body); 
   if (error) return res.status(400).send(error);
