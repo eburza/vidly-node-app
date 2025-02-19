@@ -1,6 +1,7 @@
 const lodash = require('lodash'); // object manipulation
 //const { passwordStrength } = require('check-password-strength') // password strength check
 const bcrypt = require('bcrypt'); // password hashing
+const auth = require('../middleware/auth');
 const express = require('express');
 const router = express.Router();
 const { User, validate } = require('../models/user');
@@ -40,41 +41,16 @@ router.post('/', async (req: Request, res: Response) => {
 
   //generate json web token
   const token = user.generateAuthToken();
-  
+
   //send the token to the client
   res.header('x-auth-token', token).send(lodash.pick(user, ['_id', 'name', 'email']));
 });
 
-router.put('/:id', async (req: Request, res: Response) => {
-  const { error } = validate(req.body); 
-  if (error) return res.status(400).send(error);
-
-  const user = await User.findByIdAndUpdate(req.params.id, { name: req.body.name }, {
-    new: true
-  });
-
-  if (!user) return res.status(404).send('The User with the given ID was not found.');
-  
-res.send(lodash.pick(user, ['_id', 'name', 'email']));
-});
-
-router.delete('/:id', async (req: Request, res: Response) => {
-  const { error } = validate(req.body); 
-  if (error) return res.status(400).send(error);
-  
-  const user = await User.findByIdAndRemove(req.params.id);
-
-  if (!user) return res.status(404).send('The User with the given ID was not found.');
-
-  res.send(lodash.pick(user, ['_id', 'name', 'email']));
-});
-
-router.get('/:id', async (req: Request, res: Response) => {
-  const user = await User.findById(req.params.id);
-
-  if (!user) return res.status(404).send('The User with the given ID was not found.');
-
-  res.send(lodash.pick(user, ['_id', 'name', 'email']));
+//get the current user
+router.get('/me', auth, async (req: Request, res: Response) => {
+  //get the user id from the request, exclude the password
+  const user = await User.findById(req.user._id).select('-password');
+  res.send(user);
 });
 
 module.exports = router;
