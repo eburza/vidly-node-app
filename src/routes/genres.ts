@@ -1,4 +1,5 @@
 const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
 const express = require('express');
 const router = express.Router();
 const { Genre, validate } = require('../models/genre');
@@ -34,7 +35,9 @@ router.put('/:id', auth, async (req: Request, res: Response) => {
   res.send(genre);
 });
 
-router.delete('/:id', auth, async (req: Request, res: Response) => {
+//add the auth and admin middleware to the delete route, so that only authenticated users with admin privileges can access this route
+//middleware functions are executed in the order they are added
+router.delete('/:id', [auth, admin], async (req: Request, res: Response) => {
   const { error } = validate(req.body); 
   if (error) return res.status(400).send(error);
   
