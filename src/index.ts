@@ -1,3 +1,5 @@
+const winston = require('winston');
+require('winston-mongodb');
 const mongoose = require('mongoose');
 const config = require('config') // config file
 const error = require('./middleware/error');
@@ -17,6 +19,23 @@ if (!config.get('jwtPrivateKey')) {
   //exit the process
   process.exit(1); //exit the process with a failure code, 0 is success
 }
+
+//configure the logger
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.Console({format: winston.format.simple(), level:'error'}),
+    new winston.transports.File({ filename: 'error.log', level:'error' }),
+    new winston.transports.MongoDB({
+      db: process.env.MONGODB_URI,
+      collection: 'logs',
+      options: {
+        useUnifiedTopology: true,
+      },
+    })
+  ]
+})
 
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('Connected to MongoDB'))
