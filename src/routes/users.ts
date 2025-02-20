@@ -2,18 +2,19 @@ const lodash = require('lodash'); // object manipulation
 //const { passwordStrength } = require('check-password-strength') // password strength check
 const bcrypt = require('bcrypt'); // password hashing
 const auth = require('../middleware/auth');
+const asyncMiddleware = require('../middleware/asyncMiddleware');
+const { User, validate } = require('../models/user');
 const express = require('express');
 const router = express.Router();
-const { User, validate } = require('../models/user');
 
 import type { Request, Response } from 'express';
 
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', asyncMiddleware(async (req: Request, res: Response) => {
   const users = await User.find().sort('name');
   res.send(users);
-});
+}));
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', asyncMiddleware(async (req: Request, res: Response) => {
   const { error } = validate(req.body); 
   if (error) return res.status(400).send(error);
 
@@ -44,13 +45,13 @@ router.post('/', async (req: Request, res: Response) => {
 
   //send the token to the client
   res.header('x-auth-token', token).send(lodash.pick(user, ['_id', 'name', 'email']));
-});
+}));
 
 //get the current user
-router.get('/me', auth, async (req: Request, res: Response) => {
+router.get('/me', auth, asyncMiddleware(async (req: Request, res: Response) => {
   //get the user id from the request, exclude the password
   const user = await User.findById(req.user._id).select('-password');
   res.send(user);
-});
+}));
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const config = require('config') // config file
+const error = require('./middleware/error');
 const genres = require('./routes/genres');
 const customers = require('./routes/customers');
 const rentals = require('./routes/rentals');
@@ -30,6 +31,9 @@ app.use('/api/customers', customers);
 app.use('/api/rentals', rentals);
 app.use('/api/users', users);
 app.use('/api/auth', auth);
+
+//error middleware
+app.use(error);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));

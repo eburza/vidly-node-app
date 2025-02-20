@@ -1,18 +1,19 @@
 const bcrypt = require('bcrypt'); // password hashing
 const Joi = require('joi');
+const asyncMiddleware = require('../middleware/asyncMiddleware');
+const { User } = require('../models/user');
 const express = require('express');
 const router = express.Router();
-const { User } = require('../models/user');
 
 import type { Request, Response } from 'express';
 
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', asyncMiddleware(async (req: Request, res: Response) => {
   const users = await User.find().sort('name');
   res.send(users);
-})
+}));
 
 //login route to generate a token
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', asyncMiddleware(async (req: Request, res: Response) => {
   const { error } = validate(req.body); 
   if (error) return res.status(400).send(error);
 
@@ -29,7 +30,7 @@ router.post('/', async (req: Request, res: Response) => {
 
   //send the token to the client
   res.send(token);
-});
+}));
 
 //Joi validation
 const userValidationSchema = Joi.object({

@@ -1,20 +1,21 @@
+const auth = require('../middleware/auth');
+const asyncMiddleware = require('../middleware/asyncMiddleware');
 const { Rental, validate } = require('../models/rental');
 const { Movie } = require('../models/movie');
 const { Customer } = require('../models/customer');
-const auth = require('../middleware/auth');
 const express = require('express');
 const router = express.Router();
 
 import type { Request, Response } from 'express';
 
 //get all rentals
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', asyncMiddleware(async (req: Request, res: Response) => {
   const rentals = await Rental.find().sort('-dateOut');
   res.send(rentals);
-});
+}));
 
 //create a new rental
-router.post('/', auth, async (req: Request, res: Response) => {
+router.post('/', auth, asyncMiddleware(async (req: Request, res: Response) => {
   // Joi validation
   const { error } = validate(req.body); 
   if (error) return res.status(400).send(error);
@@ -68,6 +69,6 @@ router.post('/', auth, async (req: Request, res: Response) => {
     session.endSession();
     res.status(500).send('Internal server error');
   }
-});
+}));
 
 module.exports = router;
