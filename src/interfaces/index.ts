@@ -1,3 +1,5 @@
+import type { Request, Response, NextFunction } from 'express';
+
 export interface IGenre {
   _id?: string;
   name: string;
@@ -49,3 +51,5 @@ declare global {
     }
   }
 }
+
+export type RouteHandler = (req: Request, res: Response) => Promise<any>;
