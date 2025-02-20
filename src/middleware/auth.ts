@@ -1,5 +1,6 @@
 const jwt =  require('jsonwebtoken');
-const config =  require('config');
+const config = require('config');
+import type { IUser } from '../interfaces';
 import type { Request, Response, NextFunction } from 'express';
 
 //middleware function to check if the user is authenticated
